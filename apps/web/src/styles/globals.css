@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #0A0A0B;
+    --bg-secondary: #141416;
+    --bg-elevated: #1C1C1F;
+    --text-primary: #FAFAF9;
+    --text-secondary: #A1A1AA;
+    --text-muted: #71717A;
+    --accent: #E07A5F;
+    --accent-teal: #3D8B7A;
+    --accent-indigo: #6366F1;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+    --border-subtle: #27272A;
+    --border-hover: #3F3F46;
+    --radius: 0.5rem;
+  }
+
+  * {
+    border-color: var(--border-subtle);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #3F3F46;
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite;
+  }
+}
