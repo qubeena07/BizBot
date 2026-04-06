@@ -58,10 +58,10 @@ fi
 echo ""
 if [ -f "apps/api/.env" ]; then
     source apps/api/.env 2>/dev/null
-    if [ "$OPENAI_API_KEY" != "sk-your-openai-key-here" ] && [ -n "$OPENAI_API_KEY" ]; then
-        echo -e "  OpenAI Key   ${GREEN}● Configured${NC}"
+    if [ "$GEMINI_API_KEY" != "your-gemini-api-key-here" ] && [ -n "$GEMINI_API_KEY" ]; then
+        echo -e "  Gemini Key   ${GREEN}● Configured${NC}"
     else
-        echo -e "  OpenAI Key   ${RED}● Not set${NC}  → Edit apps/api/.env"
+        echo -e "  Gemini Key   ${RED}● Not set${NC}  → Edit apps/api/.env"
     fi
     if [ "$PINECONE_API_KEY" != "your-pinecone-api-key" ] && [ -n "$PINECONE_API_KEY" ]; then
         echo -e "  Pinecone Key ${GREEN}● Configured${NC}"

@@ -232,3 +232,5 @@ trap cleanup SIGINT SIGTERM
 
 echo -e "${CYAN}Press Ctrl+C to stop${NC}\n"
 wait
+
+# ./start.sh

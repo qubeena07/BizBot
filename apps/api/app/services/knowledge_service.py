@@ -1,7 +1,9 @@
 import uuid
 import os
-import asyncio
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from fastapi import UploadFile
@@ -122,6 +124,7 @@ async def process_source_background(source_id: str, tenant_id: str) -> None:
 
     Uses its own DB session since the request session is closed by the time this runs.
     """
+    logger.info(f"[BG] Starting processing for source {source_id}")
     rag = RAGService()
 
     async with async_session() as db:
@@ -131,9 +134,11 @@ async def process_source_background(source_id: str, tenant_id: str) -> None:
             )
             source = result.scalar_one_or_none()
             if not source:
+                logger.error(f"[BG] Source {source_id} not found in DB")
                 return
 
             # 1. Extract text
+            logger.info(f"[BG] Extracting text from {source.name} (type={source.type})")
             if source.type == "file" and source.file_path:
                 text = await extract_text_from_file(source.file_path)
             elif source.type == "text" and source.content:
@@ -146,10 +151,12 @@ async def process_source_background(source_id: str, tenant_id: str) -> None:
 
             # 2. Split into chunks
             chunks = split_text(text, chunk_size=1000, chunk_overlap=200)
+            logger.info(f"[BG] Split into {len(chunks)} chunks")
             if not chunks:
                 raise ValueError("No chunks generated from text")
 
             # 3. Embed and store in Pinecone (uses batch API — fast)
+            logger.info(f"[BG] Embedding {len(chunks)} chunks...")
             chunk_count = await rag.embed_and_store(
                 tenant_id=tenant_id,
                 source_id=str(source.id),
@@ -161,8 +168,13 @@ async def process_source_background(source_id: str, tenant_id: str) -> None:
             source.chunk_count = chunk_count
             source.status = "ready"
             await db.commit()
+            logger.info(f"[BG] Source {source_id} ready — {chunk_count} chunks stored")
 
         except Exception as e:
-            source.status = "error"
-            source.error_message = str(e)[:500]
-            await db.commit()
+            logger.exception(f"[BG] Failed to process source {source_id}: {e}")
+            try:
+                source.status = "error"
+                source.error_message = str(e)[:500]
+                await db.commit()
+            except Exception:
+                logger.exception(f"[BG] Failed to update error status for {source_id}")

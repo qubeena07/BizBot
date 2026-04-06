@@ -1,8 +1,10 @@
+import logging
 import uuid
 from app.config import get_settings
 from app.core.openai_client import get_embedding, get_embeddings_batch, get_chat_completion
 from app.core.pinecone import get_pinecone_index
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 SYSTEM_PROMPT = """You are a helpful AI assistant for a business. Answer questions based on the provided context from the company's knowledge base.
@@ -33,8 +35,9 @@ class RAGService:
 
         # 1. Embed the question
         try:
-            query_embedding = await get_embedding(question)
+            query_embedding = await get_embedding(question, task_type="retrieval_query")
         except Exception as e:
+            logger.error("Embedding error: %s", e, exc_info=True)
             return {
                 "response": f"Sorry, I encountered an error processing your question. Please try again.",
                 "sources": [],
@@ -49,6 +52,7 @@ class RAGService:
                 filter={"tenant_id": tenant_id},
             )
         except Exception as e:
+            logger.error("Pinecone search error: %s", e, exc_info=True)
             return {
                 "response": "Sorry, I couldn't search the knowledge base right now. Please try again.",
                 "sources": [],
@@ -80,7 +84,7 @@ class RAGService:
 
         context = "\n\n---\n\n".join(context_parts)
 
-        # 4. Call OpenAI chat completion
+        # 4. Call Gemini chat completion
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT.format(context=context)},
             {"role": "user", "content": question},
@@ -89,6 +93,7 @@ class RAGService:
         try:
             response = await get_chat_completion(messages, temperature=0.3)
         except Exception as e:
+            logger.error("Chat completion error: %s", e, exc_info=True)
             return {
                 "response": "Sorry, I couldn't generate a response right now. Please try again.",
                 "sources": sources,
@@ -108,7 +113,6 @@ class RAGService:
             return 0
 
         vectors = []
-        # OpenAI supports up to 2048 inputs per batch call
         # Use batches of 100 to stay safe on token limits
         batch_size = 100
         for i in range(0, len(chunks), batch_size):

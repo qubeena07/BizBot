@@ -16,10 +16,10 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = 30
     jwt_refresh_token_expire_days: int = 7
 
-    # OpenAI
-    openai_api_key: str = ""
-    openai_embedding_model: str = "text-embedding-3-small"
-    openai_chat_model: str = "gpt-4o-mini"
+    # Gemini
+    gemini_api_key: str = ""
+    gemini_embedding_model: str = "models/gemini-embedding-001"
+    gemini_chat_model: str = "gemini-2.5-flash"
 
     # Pinecone
     pinecone_api_key: str = ""
