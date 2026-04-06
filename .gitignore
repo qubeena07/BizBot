@@ -1,37 +1,36 @@
-# Dependencies
-node_modules/
-__pycache__/
-*.pyc
-.venv/
-venv/
-
-# Environment
+# Environment variables — NEVER commit these
 .env
 .env.local
 .env.*.local
-.env.example
-# Build
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
 .next/
 .turbo/
 dist/
 build/
-*.egg-info/
+
+# Uploads
+apps/api/uploads/
+
+# Logs
+*.log
+/tmp/bizbot-*.log
+
+# OS
+.DS_Store
+Thumbs.db
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-.DS_Store
-
-# Testing
-coverage/
-.pytest_cache/
-htmlcov/
-
-# Logs
-*.log
-logs/
-
-# Docker
-docker-compose.override.yml
